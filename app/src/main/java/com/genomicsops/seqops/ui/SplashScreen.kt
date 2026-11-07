@@ -1,5 +1,4 @@
 package com.genomicsops.seqops.ui
-
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -16,35 +15,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.genomicsops.seqops.R
 import kotlin.math.sin
-
 @Composable
 fun SplashScreen(onFinished: () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "spin")
     val phase by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = (2 * Math.PI).toFloat(),
-        animationSpec = infiniteRepeatable(tween(1200, easing = LinearEasing)),
-        label = "phase"
+        animationSpec = infiniteRepeatable(tween(1200, easing = LinearEasing)), label = "phase"
     )
-
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(2000)
-        onFinished()
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize().background(GenomicsDark),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.logo),
-            contentDescription = "GenomicsOps Logo",
-            modifier = Modifier.size(120.dp)
-        )
+    LaunchedEffect(Unit) { kotlinx.coroutines.delay(2000); onFinished() }
+    Column(modifier = Modifier.fillMaxSize().background(GenomicsDark), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Image(painter = painterResource(id = R.drawable.logo), contentDescription = "Logo", modifier = Modifier.size(120.dp))
         Spacer(Modifier.height(32.dp))
         Canvas(modifier = Modifier.size(64.dp)) {
-            val centerX = size.width / 2
-            val amplitude = size.width * 0.35f
+            val centerX = size.width / 2; val amplitude = size.width * 0.35f
             for (i in 0..8) {
                 val y = i * (size.height / 8f)
                 val x1 = centerX + amplitude * sin(phase + i * 0.6f)

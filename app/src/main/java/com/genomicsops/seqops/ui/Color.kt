@@ -1,7 +1,5 @@
 package com.genomicsops.seqops.ui
-
 import androidx.compose.ui.graphics.Color
-
 val GenomicsDark = Color(0xFF06080A)
 val GenomicsSurface = Color(0xFF12171C)
 val GenomicsCyan = Color(0xFF00E5FF)
