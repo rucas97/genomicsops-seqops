@@ -27,9 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.genomicsops.seqops.ui.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,8 +56,15 @@ fun AppRoot() {
 
         val cleanSeq = input.uppercase().filter { it == 'A' || it == 'T' || it == 'C' || it == 'G' }
         val gcCount = cleanSeq.count { it == 'G' || it == 'C' }
+        val atCount = cleanSeq.count { it == 'A' || it == 'T' }
         val gcPercent = if (cleanSeq.isEmpty()) 0f else (gcCount.toFloat() / cleanSeq.length) * 100f
         
+        val tm = if (cleanSeq.isEmpty()) 0f 
+                 else if (cleanSeq.length < 14) (2 * atCount + 4 * gcCount).toFloat()
+                 else (64.9f + 41f * (gcCount - 16.4f) / cleanSeq.length)
+                 
+        val mw = cleanSeq.length * 650
+
         val reverseComp = cleanSeq.reversed().map {
             when(it) { 'A' -> 'T'; 'T' -> 'A'; 'C' -> 'G'; 'G' -> 'C'; else -> it }
         }.joinToString("")
@@ -78,6 +82,7 @@ fun AppRoot() {
                 else -> "X"
             }
         }.joinToString("")
+
         Column(Modifier.fillMaxSize().background(GenomicsDark).padding(16.dp).verticalScroll(rememberScrollState())) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text("SeqOps Analyzer", color = GenomicsCyan, fontSize = 28.sp)
@@ -90,13 +95,29 @@ fun AppRoot() {
             OutlinedTextField(
                 value = input, onValueChange = { input = it },
                 label = { Text("Paste DNA Sequence or Load FASTA") },
-                modifier = Modifier.fillMaxWidth().height(150.dp),
+                modifier = Modifier.fillMaxWidth().height(120.dp),
                 colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = GenomicsCyan)
             )
             
-            Spacer(Modifier.height(24.dp))
-            Text("Length: ${cleanSeq.length} bp", color = GenomicsText, fontWeight = FontWeight.Bold)
-            Text("GC Content: ${String.format("%.1f", gcPercent)}%", color = GenomicsTeal, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(16.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Column {
+                    Text("Length", color = GenomicsMuted, fontSize = 12.sp)
+                    Text("${cleanSeq.length} bp", color = GenomicsText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+                Column {
+                    Text("GC Content", color = GenomicsMuted, fontSize = 12.sp)
+                    Text("${String.format("%.1f", gcPercent)}%", color = GenomicsTeal, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+                Column {
+                    Text("Melting Temp", color = GenomicsMuted, fontSize = 12.sp)
+                    Text("${String.format("%.1f", tm)} °C", color = Color(0xFFFFAA00), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+                Column {
+                    Text("Mol. Weight", color = GenomicsMuted, fontSize = 12.sp)
+                    Text("$mw Da", color = GenomicsCyan, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            }
             
             Spacer(Modifier.height(24.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -107,7 +128,7 @@ fun AppRoot() {
             }
             Text(reverseComp, color = GenomicsCyan, fontFamily = FontFamily.Monospace, modifier = Modifier.background(GenomicsSurface, RoundedCornerShape(4.dp)).padding(8.dp).fillMaxWidth())
             
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Protein Translation (Frame 1):", color = GenomicsMuted)
                 IconButton(onClick = { clipboardManager.setText(AnnotatedString(protein)); Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show() }) {
