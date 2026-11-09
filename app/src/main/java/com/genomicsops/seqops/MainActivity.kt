@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -38,12 +39,12 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppRoot() {
-    var showSplash by remember { mutableStateOf(true) }
+    var var showSplash by remember { by rememberSaveable { mutableStateOf(true) }
     if (showSplash) SplashScreen { showSplash = false }
     else {
         val context = LocalContext.current
         val clipboardManager = LocalClipboardManager.current
-        var input by remember { mutableStateOf("") }
+        var var input by remember { by rememberSaveable { mutableStateOf("") }
 
         val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
